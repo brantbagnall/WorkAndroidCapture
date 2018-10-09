@@ -20,7 +20,7 @@ namespace ADB_Android
             int nameNumberImg = 1;
             var adb = SharpAdbClient.AdbClient.Instance;
             int i = 0;
-            bool auto = false;
+            bool auto = true;
             AdbServer server = new AdbServer();
             var result = server.StartServer(@"./Android-tools/adb.exe", restartServerIfNewer: true);
             while (i == 0) 
