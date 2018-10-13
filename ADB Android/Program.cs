@@ -1,22 +1,40 @@
-﻿using System;
+﻿//using is how we tell the compiler to include certain peices of code
+using System;
 using System.Windows.Input;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using SharpAdbClient;
 using System.Threading;
 using System.Net;
 using System.IO;
+//SharpAdbClient is an open source package that allows us to interact with the adb executible
+//The adb executible then interacts with the android device
+using SharpAdbClient;
 
+//not 100% sure what namespace is. some code is auto generated when you make a new project
 namespace ADB_Android
 {
+    //not 100% sure what class is about
     class Program
     {
+        //Main is the function that starts your program
+        //Static and void are modifiers for the function
+        //void means that it returns nothing
+        //not sure what static is for but I believe it has something to do with how visible this code is to other functions
         static void Main()
         {
+            //Console.WriteLine is how we show information to our users
             Console.WriteLine("Loading...");
+
+            //here we are setting up variables to be used later on
+            //this is called variable initialization
+            //we initialize variables with default values
+            //this will eventually be moved to a settings file
+            //int stands for integer (whole number both positive and negative)
+            //each variable needs a declared type and in this case it is int
+            //there are quite a few variable types so I will not go into detail here but if you have quetions please ask
             int nameNumberVideo = 1;
             int nameNumberImg = 1;
             var adb = SharpAdbClient.AdbClient.Instance;
@@ -24,9 +42,13 @@ namespace ADB_Android
             bool auto = true;
             var pathValues = Environment.GetEnvironmentVariable("PATH");
             string adbPath = "none";
+
+            //a foreach loop is used to go through a "list" (arrays and objects are two examples) of data and process each item in that list
+            //in this instance I am looking for a specific value and I am testing each value in the list individualy
             foreach (var path in pathValues.Split(';'))
             {
                 var fullPath = Path.Combine(path, "adb.exe");
+                //an if statment is used to determine if something is true and runs a piece of code if the statement is true
                 if (File.Exists(fullPath))
                 {
                     adbPath = fullPath.ToString();
@@ -39,6 +61,7 @@ namespace ADB_Android
                 {
                     adbPath = Path.GetFullPath("adb.exe").ToString();
                 }
+                //else is used after an if statement to tell the computer to run this piece of code if the if statement is not run
                 else
                 {
                     Console.Clear();
@@ -49,6 +72,8 @@ namespace ADB_Android
                 }             
             }
             var result = server.StartServer(adbPath, restartServerIfNewer: true);
+
+            //a while statement is used to tell the computer to run a piece of code while something is true
             while (i == 0) 
             {
                 Console.Clear();
@@ -84,6 +109,7 @@ namespace ADB_Android
                 }
                 if (key.KeyChar.ToString() == "v" && auto == true || key.KeyChar.ToString() == "V" && auto == true)
                 {
+                    //this is how you start a function
                     autoVideo();
                 }
 
@@ -93,6 +119,7 @@ namespace ADB_Android
                     Environment.Exit(0); 
                 }
             }
+            //this is a function
             void nameScreen()
             {
                 var device = adb.GetDevices().First();
