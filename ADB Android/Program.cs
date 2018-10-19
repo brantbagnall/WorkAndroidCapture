@@ -35,9 +35,9 @@ namespace ADB_Android
             AdbServer server = new AdbServer();
             if (adbPath == "none")
             {
-                if (File.Exists(Path.GetFullPath("adb.exe")))
+                if (File.Exists("./Android-tools/adb.exe"))
                 {
-                    adbPath = Path.GetFullPath("adb.exe").ToString();
+                    adbPath = Path.GetFullPath("./Android-tools/adb.exe").ToString();
                 }
                 else
                 {
