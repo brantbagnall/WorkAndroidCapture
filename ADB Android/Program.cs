@@ -80,7 +80,7 @@ namespace ADB_Android
                             settings["adbPath"] = split[1];
                             break;
                         case "auto":
-                            settings["auto"] = Convert.ToBoolean(split[0]);
+                            settings["auto"] = Convert.ToBoolean(split[1]);
                             break;
                         default:
                             break;
@@ -102,28 +102,34 @@ namespace ADB_Android
 
             //a foreach loop is used to go through a "list" (arrays and objects are two examples) of data and process each item in that list
             //in this instance I am looking for a specific value and I am testing each value in the list individualy
-            foreach (var path in pathValues.Split(';'))
-            {
-                var fullPath = Path.Combine(path, "adb.exe");
-                //an if statment is used to determine if something is true and runs a piece of code if the statement is true
-                if (File.Exists(fullPath))
-                {
-                    settings["adbPath"] = fullPath.ToString();
-                }
-            }
+            
             AdbServer server = new AdbServer();
             if ((string)settings["adbPath"] == "none")
             {
-                if (File.Exists("./platform-tools/adb.exe"))
+
+                foreach (var path in pathValues.Split(';'))
+                {
+                    var fullPath = Path.Combine(path, "adb.exe");
+                    //an if statment is used to determine if something is true and runs a piece of code if the statement is true
+                    if (File.Exists(fullPath))
+                    {
+                        settings["adbPath"] = fullPath.ToString();
+                        saveSettings();
+                    }
+                }
+
+                if (File.Exists("./platform-tools/adb.exe") && (string)settings["adbPath"] == "none")
                 {
                     settings["adbPath"] = Path.GetFullPath("./platform-tools/adb.exe").ToString();
+                    saveSettings();
                 }
                 //else is used after an if statement to tell the computer to run this piece of code if the if statement is not run
-                else
+                else if((string)settings["adbPath"] == "none")
                 {
                     Console.Clear();
                     Console.WriteLine("Please enter the full path to an adb executable then press Enter:");
                     settings["adbPath"] = Console.ReadLine();
+                    saveSettings();
                     Console.Clear();
                     Console.WriteLine("Loading...");
                 }             
