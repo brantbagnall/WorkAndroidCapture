@@ -52,7 +52,14 @@ namespace ADB_Android
             //int stands for integer (whole number both positive and negative)
             //each variable needs a declared type and in this case it is int
             //there are quite a few variable types so I will not go into detail here but if you have quetions please ask
-            ProgramSettings settings = new ProgramSettings();
+            ProgramSettings settingsOrig = new ProgramSettings();
+
+            Dictionary<string, object> settings = new Dictionary<string, object>();
+
+            settings.Add("nameNumberVideo", 1);
+            settings.Add("nameNumberImg", 1);
+            settings.Add("adbPath", "none");
+            settings.Add("auto", true);
 
 
             if (File.Exists("./settings.config"))
@@ -64,16 +71,16 @@ namespace ADB_Android
                     switch (split[0])
                     {
                         case "nameNumberVideo":
-                            settings.nameNumberVideo = Convert.ToInt32(split[1]);
+                            settings["nameNumberVideo"] = Convert.ToInt32(split[1]);
                             break;
                         case "nameNumberImg":
-                            settings.nameNumberImg = Convert.ToInt32(split[1]);
+                            settings["nameNumberImg"] = Convert.ToInt32(split[1]);
                             break;
                         case "adbPath":
-                            settings.adbPath = split[1];
+                            settings["adbPath"] = split[1];
                             break;
                         case "auto":
-                            settings.auto = Convert.ToBoolean(split[0]);
+                            settings["auto"] = Convert.ToBoolean(split[0]);
                             break;
                         default:
                             break;
@@ -82,8 +89,6 @@ namespace ADB_Android
                 }
             } else if (!File.Exists("./settings.config"))
             {
-                
-                File.Create("./settings.config");
                 saveSettings();
             }
             else
@@ -103,27 +108,27 @@ namespace ADB_Android
                 //an if statment is used to determine if something is true and runs a piece of code if the statement is true
                 if (File.Exists(fullPath))
                 {
-                    settings.adbPath = fullPath.ToString();
+                    settings["adbPath"] = fullPath.ToString();
                 }
             }
             AdbServer server = new AdbServer();
-            if (settings.adbPath == "none")
+            if ((string)settings["adbPath"] == "none")
             {
                 if (File.Exists("./platform-tools/adb.exe"))
                 {
-                    settings.adbPath = Path.GetFullPath("./platform-tools/adb.exe").ToString();
+                    settings["adbPath"] = Path.GetFullPath("./platform-tools/adb.exe").ToString();
                 }
                 //else is used after an if statement to tell the computer to run this piece of code if the if statement is not run
                 else
                 {
                     Console.Clear();
                     Console.WriteLine("Please enter the full path to an adb executable then press Enter:");
-                    settings.adbPath = Console.ReadLine();
+                    settings["adbPath"] = Console.ReadLine();
                     Console.Clear();
                     Console.WriteLine("Loading...");
                 }             
             }
-            var result = server.StartServer(settings.adbPath, restartServerIfNewer: true);
+            var result = server.StartServer((string)settings["adbPath"], restartServerIfNewer: true);
 
             //a while statement is used to tell the computer to run a piece of code while something is true
             while (i == 0) 
@@ -131,7 +136,7 @@ namespace ADB_Android
                 Console.Clear();
                 Console.WriteLine("Press C to capture a screenshot.");
                 Console.WriteLine("Press V to capture a video file.");
-                if(settings.auto == true)
+                if((bool)settings["auto"] == true)
                 {
                     Console.WriteLine("Press R to disable auto-naming.");
                 } else
@@ -143,23 +148,23 @@ namespace ADB_Android
 
                 if (key.KeyChar.ToString() == "r" || key.KeyChar.ToString() == "R")
                 {
-                    settings.auto = !settings.auto;
+                    settings["auto"] = !(bool)settings["auto"];
                 }
 
-                if (key.KeyChar.ToString() == "c" && settings.auto == false || key.KeyChar.ToString() == "C" && settings.auto == false )
+                if (key.KeyChar.ToString() == "c" && (bool)settings["auto"] == false || key.KeyChar.ToString() == "C" && (bool)settings["auto"] == false )
                 {
                     nameScreen();
                 }
-                if (key.KeyChar.ToString() == "v" && settings.auto == false || key.KeyChar.ToString() == "V" && settings.auto == false)
+                if (key.KeyChar.ToString() == "v" && (bool)settings["auto"] == false || key.KeyChar.ToString() == "V" && (bool)settings["auto"] == false)
                 {
                     nameVideo();
                 }
 
-                if (key.KeyChar.ToString() == "c" && settings.auto == true || key.KeyChar.ToString() == "C" && settings.auto == true)
+                if (key.KeyChar.ToString() == "c" && (bool)settings["auto"] == true || key.KeyChar.ToString() == "C" && (bool)settings["auto"] == true)
                 {
                     autoScreen();
                 }
-                if (key.KeyChar.ToString() == "v" && settings.auto == true || key.KeyChar.ToString() == "V" && settings.auto == true)
+                if (key.KeyChar.ToString() == "v" && (bool)settings["auto"] == true || key.KeyChar.ToString() == "V" && (bool)settings["auto"] == true)
                 {
                     //this is how you start a function
                     autoVideo();
@@ -174,7 +179,19 @@ namespace ADB_Android
 
             void saveSettings()
             {
-                File.WriteAllLines("./settings.config", new string[4] { "adbPath=" + settings.adbPath.ToString(), "auto=" + settings.auto.ToString(), "nameNumberImg=" + settings.nameNumberImg.ToString(), "nameNumberVideo=" + settings.nameNumberVideo.ToString() });
+
+                foreach(object e in settings)
+                {
+
+                }
+
+                File.WriteAllLines("./settings.config", new string[4]
+                {
+                    "adbPath=" + settings["adbPath"].ToString(),
+                    "auto=" + settings["auto"].ToString(),
+                    "nameNumberImg=" + settings["nameNumberImg"].ToString(),
+                    "nameNumberVideo=" + settings["nameNumberVideo"].ToString()
+                });
             };
             //this is a function
             void nameScreen()
@@ -202,13 +219,13 @@ namespace ADB_Android
                 Console.WriteLine(receiver.ToString());
                 System.Threading.Thread.Sleep(1000);
                 using (SyncService service = new SyncService(new AdbSocket(new IPEndPoint(IPAddress.Loopback, AdbClient.AdbServerPort)), device))
-                using (Stream stream = File.OpenWrite(@"./Image " + settings.nameNumberImg + ".png"))
+                using (Stream stream = File.OpenWrite(@"./Image " + (int)settings["nameNumberImg"] + ".png"))
                 {
                     service.Pull("/sdcard/capturescript.png", stream, null, CancellationToken.None);
                 }
 
                 adb.ExecuteRemoteCommand("rm /sdcard/capturescript.png", device, receiver);
-                settings.nameNumberImg++;
+                settings["nameNumberImg"] = (int)settings["nameNumberImg"] + 1;
             }
             void nameVideo()
             {
@@ -260,13 +277,13 @@ namespace ADB_Android
                         cancelSource.Cancel();
                         System.Threading.Thread.Sleep(1000);
                         using (SyncService service = new SyncService(new AdbSocket(new IPEndPoint(IPAddress.Loopback, AdbClient.AdbServerPort)), device))
-                        using (Stream stream = File.OpenWrite(@"./Video " + settings.nameNumberVideo + ".mp4"))
+                        using (Stream stream = File.OpenWrite(@"./Video " + (int)settings["nameNumberVideo"] + ".mp4"))
                         {
                             service.Pull("/sdcard/videocapturescript.mp4", stream, null, CancellationToken.None);
                         }
                         adb.ExecuteRemoteCommand("rm /sdcard/videocapturescript.mp4", device, receiver);
                         transfered = true;
-                        settings.nameNumberVideo++;
+                        settings["nameNumberVideo"] = (int)settings["nameNumberVideo"] + 1;
                     }
                 }
             }
