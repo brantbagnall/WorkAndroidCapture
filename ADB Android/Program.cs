@@ -68,19 +68,38 @@ namespace ADB_Android
                 foreach(string sett in unFiltered)
                 {
                     var split = sett.Split('=');
+                    int conversionInt;
+                    bool conversionBool;
+                    //string conversionstring;
+                    bool success;
                     switch (split[0])
                     {
                         case "nameNumberVideo":
-                            settings["nameNumberVideo"] = Convert.ToInt32(split[1]);
+                            success = int.TryParse(split[1], out conversionInt);
+                            if (success)
+                            {
+                                settings["nameNumberVideo"] = conversionInt;
+                            }
                             break;
                         case "nameNumberImg":
-                            settings["nameNumberImg"] = Convert.ToInt32(split[1]);
+                            success = int.TryParse(split[1], out conversionInt);
+                            if (success)
+                            {
+                                settings["nameNumberImg"] = conversionInt;
+                            }
                             break;
                         case "adbPath":
-                            settings["adbPath"] = split[1];
+                            if(File.Exists(split[1].ToString()))
+                            {
+                                settings["adbPath"] = split[1].ToString();
+                            }
                             break;
                         case "auto":
-                            settings["auto"] = Convert.ToBoolean(split[1]);
+                            success = bool.TryParse(split[1], out conversionBool);
+                            if (success)
+                            {
+                                settings["auto"] = conversionBool;
+                            }
                             break;
                         default:
                             break;
@@ -185,12 +204,6 @@ namespace ADB_Android
 
             void saveSettings()
             {
-
-                foreach(object e in settings)
-                {
-
-                }
-
                 File.WriteAllLines("./settings.config", new string[4]
                 {
                     "adbPath=" + settings["adbPath"].ToString(),
