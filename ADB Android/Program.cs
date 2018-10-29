@@ -16,23 +16,6 @@ using SharpAdbClient;
 //not 100% sure what namespace is. some code is auto generated when you make a new project
 namespace ADB_Android
 {
-
-    class ProgramSettings
-    {
-        public int nameNumberVideo { get; set; }
-        public int nameNumberImg { get; set; }
-        public string adbPath { get; set; }
-        public bool auto { get; set; }
-
-        public ProgramSettings()
-        {
-            nameNumberVideo = 1;
-            nameNumberImg = 1;
-            adbPath = "none";
-            auto = true;
-        }
-    }
-
     //not 100% sure what class is about
     class Program
     {
@@ -52,7 +35,6 @@ namespace ADB_Android
             //int stands for integer (whole number both positive and negative)
             //each variable needs a declared type and in this case it is int
             //there are quite a few variable types so I will not go into detail here but if you have quetions please ask
-            ProgramSettings settingsOrig = new ProgramSettings();
 
             Dictionary<string, object> settings = new Dictionary<string, object>();
 
