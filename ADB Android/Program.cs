@@ -1,4 +1,7 @@
-﻿//using is how we tell the compiler to include certain peices of code
+﻿//https://dl.google.com/android/repository/platform-tools-latest-windows.zip
+//https://developer.android.com/studio/terms
+
+//using is how we tell the compiler to include certain peices of code
 using System;
 using System.Windows.Input;
 using System.Collections.Generic;
@@ -118,7 +121,7 @@ namespace ADB_Android
                         saveSettings();
                     }
                 }
-
+                
                 if (File.Exists("./platform-tools/adb.exe") && (string)settings["adbPath"] == "none")
                 {
                     settings["adbPath"] = Path.GetFullPath("./platform-tools/adb.exe").ToString();
