@@ -31,6 +31,11 @@ namespace ADB_Android
             //Console.WriteLine is how we show information to our users
             Console.WriteLine("Loading Settings...");
 
+
+            WebClient wc = new WebClient();
+            //wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
+            wc.DownloadFileAsync(new System.Uri("https://dl.google.com/android/repository/platform-tools-latest-windows.zip"), "./test.zip");
+            //https://stackoverflow.com/questions/307688/how-to-download-a-file-from-a-url-in-c
             //here we are setting up variables to be used later on
             //this is called variable initialization
             //we initialize variables with default values
@@ -121,7 +126,7 @@ namespace ADB_Android
                         saveSettings();
                     }
                 }
-                
+
                 if (File.Exists("./platform-tools/adb.exe") && (string)settings["adbPath"] == "none")
                 {
                     settings["adbPath"] = Path.GetFullPath("./platform-tools/adb.exe").ToString();
@@ -291,6 +296,11 @@ namespace ADB_Android
                     }
                 }
             }
-        }            
+        }
+
+        private static void Wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
