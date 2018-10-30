@@ -29,12 +29,10 @@ namespace ADB_Android
         static void Main()
         {
             //Console.WriteLine is how we show information to our users
-            Console.WriteLine("Loading Settings...");
+            loading("Settings");
 
 
-            WebClient wc = new WebClient();
-            //wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
-            wc.DownloadFileAsync(new System.Uri("https://dl.google.com/android/repository/platform-tools-latest-windows.zip"), "./test.zip");
+            
             //https://stackoverflow.com/questions/307688/how-to-download-a-file-from-a-url-in-c
             //here we are setting up variables to be used later on
             //this is called variable initialization
@@ -105,6 +103,7 @@ namespace ADB_Android
                 saveSettings();
             }
 
+            loading("ADB Instance");
             var adb = SharpAdbClient.AdbClient.Instance;
             int i = 0;
             var pathValues = Environment.GetEnvironmentVariable("PATH");
@@ -136,11 +135,25 @@ namespace ADB_Android
                 else if((string)settings["adbPath"] == "none")
                 {
                     Console.Clear();
-                    Console.WriteLine("Please enter the full path to an adb executable then press Enter:");
-                    settings["adbPath"] = Console.ReadLine();
-                    saveSettings();
-                    Console.Clear();
-                    Console.WriteLine("Loading...");
+                    Console.WriteLine("Download ADB automatically?");
+                    Console.WriteLine("Y = Yes");
+                    Console.WriteLine("N = No");
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    switch (key.ToString().ToLower())
+                    {
+                        case "y":
+                            downloadADB();
+                            break;
+                        case "n":
+                            Console.Clear();
+                            Console.WriteLine("Please enter the full path to an adb executable then press Enter:");
+                            settings["adbPath"] = Console.ReadLine();
+                            break;
+                        default:
+                            redodownloadCheck();
+                            break;
+                    };
+
                 }             
             }
             var result = server.StartServer((string)settings["adbPath"], restartServerIfNewer: true);
@@ -296,11 +309,48 @@ namespace ADB_Android
                     }
                 }
             }
-        }
-
-        private static void Wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-            throw new NotImplementedException();
+            void loading(string whatLoad)
+            {
+                Console.Clear();
+                if (whatLoad != null)
+                {
+                    Console.WriteLine("Loading " + whatLoad + "...");
+                }
+                else
+                {
+                    Console.WriteLine("Loading...");
+                };
+            }
+            void downloadADB()
+            {
+                saveSettings();
+                WebClient wc = new WebClient();
+                //wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
+                wc.DownloadFileAsync(new System.Uri("https://dl.google.com/android/repository/platform-tools-latest-windows.zip"), "./test.zip");
+            }
+            void redodownloadCheck()
+            {
+                Console.Clear();
+                Console.WriteLine("Please press Y or N...");
+                Console.WriteLine("Download ADB automatically?");
+                Console.WriteLine("Y = Yes");
+                Console.WriteLine("N = No");
+                ConsoleKeyInfo key = Console.ReadKey(true);
+                switch (key.ToString().ToLower())
+                {
+                    case "y":
+                        downloadADB();
+                        break;
+                    case "n":
+                        Console.Clear();
+                        Console.WriteLine("Please enter the full path to an adb executable then press Enter:");
+                        settings["adbPath"] = Console.ReadLine();
+                        break;
+                    default:
+                        redodownloadCheck();
+                        break;
+                };
+            }
         }
     }
 }
