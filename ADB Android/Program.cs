@@ -5,6 +5,7 @@
 using System;
 using System.Windows.Input;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -148,6 +149,7 @@ namespace ADB_Android
                             Console.Clear();
                             Console.WriteLine("Please enter the full path to an adb executable then press Enter:");
                             settings["adbPath"] = Console.ReadLine();
+                            saveSettings();
                             break;
                         default:
                             redodownloadCheck();
@@ -174,31 +176,34 @@ namespace ADB_Android
                 Console.WriteLine("Press E to exit.");
                 ConsoleKeyInfo key = Console.ReadKey(true);
 
-                if (key.KeyChar.ToString() == "r" || key.KeyChar.ToString() == "R")
+                if (key.KeyChar.ToString().ToLower() == "r")
                 {
                     settings["auto"] = !(bool)settings["auto"];
                 }
 
-                if (key.KeyChar.ToString() == "c" && (bool)settings["auto"] == false || key.KeyChar.ToString() == "C" && (bool)settings["auto"] == false )
+                if (key.KeyChar.ToString().ToLower() == "c" && (bool)settings["auto"] == false)
                 {
                     nameScreen();
                 }
-                if (key.KeyChar.ToString() == "v" && (bool)settings["auto"] == false || key.KeyChar.ToString() == "V" && (bool)settings["auto"] == false)
+                if (key.KeyChar.ToString().ToLower() == "v" && (bool)settings["auto"] == false)
                 {
                     nameVideo();
                 }
 
-                if (key.KeyChar.ToString() == "c" && (bool)settings["auto"] == true || key.KeyChar.ToString() == "C" && (bool)settings["auto"] == true)
+                if (key.KeyChar.ToString().ToLower() == "c" && (bool)settings["auto"] == true)
                 {
                     autoScreen();
                 }
-                if (key.KeyChar.ToString() == "v" && (bool)settings["auto"] == true || key.KeyChar.ToString() == "V" && (bool)settings["auto"] == true)
+                if (key.KeyChar.ToString().ToLower() == "v" && (bool)settings["auto"] == true)
                 {
                     //this is how you start a function
                     autoVideo();
                 }
-
-                if (key.KeyChar.ToString() == "e" || key.KeyChar.ToString() == "E")
+                if (key.KeyChar.ToString().ToLower() == "d")
+                {
+                    downloadADB();
+                }
+                if (key.KeyChar.ToString().ToLower() == "e")
                 {
                     adb.KillAdb();
                     Environment.Exit(0); 
@@ -323,10 +328,51 @@ namespace ADB_Android
             }
             void downloadADB()
             {
-                saveSettings();
+                Console.Clear();
+                Console.WriteLine("Start Download");
+                Stopwatch printTime = new Stopwatch();
+                bool downloadDone = false;
+                bool messageDone = false;
+                int progress = 0;
                 WebClient wc = new WebClient();
-                //wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
-                wc.DownloadFileAsync(new System.Uri("https://dl.google.com/android/repository/platform-tools-latest-windows.zip"), "./test.zip");
+                wc.DownloadFileCompleted += Wc_DownloadStringCompleted;
+                wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
+                wc.DownloadFileAsync(new Uri("https://dl.google.com/android/repository/platform-tools-latest-windows.zip"), "./test.zip");
+                while (messageDone == false)
+                {
+                    if (printTime.ElapsedMilliseconds >= 1000)
+                    {
+                        Console.WriteLine("Download Progress:" + progress);
+                        printTime.Restart();
+                    }
+                    if(downloadDone == true)
+                    {
+                        messageDone = true;
+                        Thread.Sleep(1000);
+                    }
+                }
+                void Wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+                {
+                    if (!downloadDone)
+                    {
+                        if (!printTime.IsRunning)
+                        {
+                            Console.WriteLine("Download Progress:" + progress);
+                            printTime.Start();
+                        }
+                        progress = e.ProgressPercentage;
+                    }
+                    
+                }
+                void Wc_DownloadStringCompleted (object sender, AsyncCompletedEventArgs e)
+                {
+                    
+                    Console.Clear();
+                    Console.WriteLine("Download Complete!");
+                    Console.WriteLine("Setting up files for use.");
+                    downloadDone = true;
+                }
+                
             }
             void redodownloadCheck()
             {
@@ -345,6 +391,7 @@ namespace ADB_Android
                         Console.Clear();
                         Console.WriteLine("Please enter the full path to an adb executable then press Enter:");
                         settings["adbPath"] = Console.ReadLine();
+                        saveSettings();
                         break;
                     default:
                         redodownloadCheck();
